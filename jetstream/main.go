@@ -33,9 +33,9 @@ func main() {
 	}
 
 	InterestBasedConsumption(js)
-	// QueueBasedConsumption(js)
-	// PullConsumer(js)
-	// KeyValue(js)
+	QueueBasedConsumption(js)
+	PullConsumer(js)
+	KeyValue(js)
 	ObjectStore(nc)
 }
 
@@ -419,18 +419,19 @@ func ObjectStore(nc *nats.Conn) {
 		fmt.Println(res.Size)
 	}
 
-	retrieveData, _ = obj.Get("orders.json")
-
-	buf := make([]byte, 200) // Adjust size as needed
-	for {
-		n, err := retrieveData.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				break
+	retrieveData, err = obj.Get("orders.json")
+	if err == nil {
+		buf := make([]byte, 200) // Adjust size as needed
+		for {
+			n, err := retrieveData.Read(buf)
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				log.Fatal(err)
 			}
-			log.Fatal(err)
+			fmt.Println(string(buf[:n]))
 		}
-		fmt.Println(string(buf[:n]))
 	}
 	jsm.DeleteObjectStore(objectStoreName)
 }
